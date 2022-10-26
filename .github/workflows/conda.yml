@@ -36,6 +36,6 @@ jobs:
         run: conda install -c ${CONDA_PREFIX}/conda-bld/ phonetisaurus-py
 
       - name: Find and export artifact
-        uses: action/upload-artifact@v3
+        uses: actions/upload-artifact@v3
         with:
           path: ${CONDA_PREFIX}/conda-bld/*/phonetisaurus-py**.tar.bz2
