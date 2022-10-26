@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-import phonetisaurus
-from itertools import izip
+# This is cloned directly from the original Phonetisaurus repo,
+# with class and function renamed to adapt this pythonized repo
+from phonetisaurus import PhonetisaurusModel
 
-def Phoneticize (model, args) :
+
+def Phoneticize (model: PhonetisaurusModel, args) :
     """Python wrapper function for g2p bindings.
 
     Python wrapper function for g2p bindings.  Most basic possible example.
@@ -13,7 +15,7 @@ def Phoneticize (model, args) :
         args (obj): The argparse object with user specified options.
     """
 
-    results = model.Phoneticize (
+    results = model.phoneticize (
         args.token,
         args.nbest,
         args.beam,
@@ -24,17 +26,17 @@ def Phoneticize (model, args) :
     )
 
     for result in results :
-        uniques = [model.FindOsym (u) for u in result.Uniques]
-        print ("{0:0.2f}\t{1}".format (result.PathWeight, " ".join (uniques)))
+        uniques = [model.find_osym (u) for u in result.uniques]
+        print ("{0:0.2f}\t{1}".format (result.path_weight, " ".join (uniques)))
         print ("-------")
 
         #Should always be equal length
-        for ilab, olab, weight in izip (result.ILabels,
-                                        result.OLabels,
-                                        result.PathWeights) :
+        for ilab, olab, weight in zip (result.input_labels,
+                                        result.output_labels,
+                                        result.path_weights) :
             print ("{0}:{1}:{2:0.2f}".format (
-                model.FindIsym (ilab),
-                model.FindOsym (olab),
+                model.find_isym (ilab),
+                model.find_osym (olab),
                 weight
             ))
 
@@ -72,17 +74,17 @@ if __name__ == "__main__" :
         for key,val in args.__dict__.iteritems () :
             print ("{0}:  {1}".format (key, val))
 
-    model = phonetisaurus.Phonetisaurus (args.model)
+    model = PhonetisaurusModel (args.model)
 
     if args.word :
         args.token = args.word
         Phoneticize (model, args)
 
     else :
-        with open (args.wlist, "r") as ifp :
+        with open (args.wlist, "r", encoding="utf-8") as ifp :
             for word in ifp :
-                word = word.decode ("utf8").strip ()
+                word = word.strip ()
                 args.token = word
                 Phoneticize (model, args)
-                print "-----------------------"
-                print ""
+                print("-----------------------")
+                print("")

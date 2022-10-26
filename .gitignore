@@ -56,3 +56,5 @@ src/bin/.dirstamp
 src/lib/.deps/
 src/lib/.dirstamp
 src/lib/Phonetisaurus_la-util.lo
+.vscode/
+*.pyd

@@ -48,13 +48,13 @@ using namespace fst;
 typedef struct UttResult {
   UttResult () : sent_prob(0.0) {}
   double sent_prob;
-  vector<double> word_probs;
-  vector<string> words;
+  std::vector<double> word_probs;
+  std::vector<std::string> words;
 } UttResult;
 
 class RnnLMPy {
  public:
-  explicit RnnLMPy (string rnnlm_file) {
+  explicit RnnLMPy (std::string rnnlm_file) {
     srand (1);
     rnnlm_.setLambda (0.75);
     rnnlm_.setRegularization (0.0000001);
@@ -66,22 +66,22 @@ class RnnLMPy {
     rnnlm_.restoreNet ();
   }
 
-  vector<int> GetJointVocab (string& token) {
+  std::vector<int> GetJointVocab (std::string& token) {
     return rnnlm_.SearchJointVocab (token);
   }
 
-  string GetString (int id) {
+  std::string GetString (int id) {
     return rnnlm_.token_map[id];
   }
 
-  UttResult EvaluateSentence (vector<string> words) {
+  UttResult EvaluateSentence (std::vector<std::string> words) {
     /*
       Note that the user is responsible for explicitly
       providing the sentence-end token in the words vector!
     */
     int a, word, last_word;
     UttResult result;
-    string delim = "}";
+    std::string delim = "}";
 
     last_word = 0;
     rnnlm_.copyHiddenLayerToInput ();

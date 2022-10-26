@@ -1,0 +1,8 @@
+name: phonetisaurus-py
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python
+  - pybind11
+  - openfst
