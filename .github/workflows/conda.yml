@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-latest, windows-latest, macos-latest]
+        platform: [ubuntu-latest, windows-2019, macos-latest]
         python-version: ["3.7", "3.8", "3.9", "3.10"]
 
     runs-on: ${{ matrix.platform }}
@@ -34,3 +34,8 @@ jobs:
 
       - name: Install
         run: conda install -c ${CONDA_PREFIX}/conda-bld/ phonetisaurus-py
+
+      - name: Find and export artifact
+        uses: action/upload-artifact@v3
+        with:
+          path: ${CONDA_PREFIX}/conda-bld/*/phonetisaurus-py**.tar.bz2
