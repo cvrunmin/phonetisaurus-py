@@ -1,5 +1,7 @@
 ## Phonetisaurus G2P - pybind11 binding ##
 
+![](https://anaconda.org/cvrunmin/phonetisaurus-py/badges/version.svg) ![](https://anaconda.org/cvrunmin/phonetisaurus-py/badges/platforms.svg)
+
 This repository is a fork from https://github.com/AdolfVonKleist/Phonetisaurus which focus on building Python binding using pybind11. This repo benefits from OpenFst package in anaconda.org which allows independency from version of OpenFst unless any breaking changes on api or dynamic linking.
 
 The original Phonetisaurus repository contains scripts suitable for training, evaluating and using grapheme-to-phoneme
@@ -47,3 +49,39 @@ $ ./phoneticize.py -m ~/example/cmudict.o8.fst -w testing
   n|g:NG:0.16
   <eps>:<eps>:0.01
 ```
+
+### Usage ###
+
+Install phonetisaurus-py into your Conda environment:
+```commandline
+conda install -c cvrunmin -c conda-forge phonetisaurus-py
+```
+
+Initialize a Phonetisaurus model with a G2P transducer (for example, `cmudict.o8.fst`):
+```python
+from phonetisaurus import PhonetisaurusModel
+
+model = PhonetisaurusModel("cmudict.o8.fst")
+```
+
+Phoneticize a word into lists of phoneme:
+```python
+results = model.phoneticize('testing')
+phonemes = [[model.find_osym(u) for u in result.uniques] for result in results]
+```
+
+### Difference from the binding of upstream repo ###
+
+Members of the module exported is basically identicial, with naming changed to adapt python's convention
+| Phonetisaurus | phontisaurus-py | notes |
+| ---|---|---|
+| PhonetisaurusScript|PhonetisaurusModel|Only change in class name as 'Model' should be clearer than 'Script' |
+| Phoneticize|phoneticize||
+| FindIsym|find_isym||
+| FindOsym|find_osym||
+| PathData|PathData||
+| PathWeight|path_weight||
+| PathWeights|path_weights||
+| ILabels|input_labels|State clearly what I means|
+| OLabels|output_labels|State clearly what O means|
+| Uniques|uniques||
