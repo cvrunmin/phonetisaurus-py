@@ -44,7 +44,7 @@ jobs:
         
       - name: Build
         run: conda build conda -c conda-forge --no-anaconda-upload
-        if: github.event_name != 'push' && !input.should_publish
+        if: github.event_name != 'push' && !inputs.should_publish
         
       - name: Build and Upload
         run: conda build conda -c conda-forge
