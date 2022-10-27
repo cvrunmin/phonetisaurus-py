@@ -44,7 +44,7 @@ jobs:
           conda build conda -c conda-forge --no-anaconda-upload --output-folder build
         
       - name: Install
-        run: conda install -c build/ phonetisaurus-py
+        run: conda install -c ./build/ phonetisaurus-py
 
       - name: Find and export artifact
         uses: actions/upload-artifact@v3
