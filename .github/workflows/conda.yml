@@ -39,27 +39,34 @@ jobs:
         run: conda install conda-build conda-verify
         
       - name: Build
-        run: conda build conda -c conda-forge --no-anaconda-upload
+        run: |
+          mkdir build
+          conda build conda -c conda-forge --no-anaconda-upload --output-folder build
         
       - name: Install
-        run: conda install -c ${CONDA_PREFIX}/conda-bld/ phonetisaurus-py
+        run: conda install -c build/ phonetisaurus-py
 
       - name: Find and export artifact
         uses: actions/upload-artifact@v3
         with:
-          path: ${{ env.CONDA_PREFIX }}/conda-bld/*/phonetisaurus-py**.tar.bz2
+          path: build/*/phonetisaurus-py**.tar.bz2
+          
+      - name: Setup Anaconda client
+        if: github.event_name == 'push' || inputs.should_publish
+        run: conda install -y anaconda-client
+        
       - name: Upload to Anaconda (win-64)
         if: ${{ (github.event_name == 'push' || inputs.should_publish) && runner.os == 'Windows' }}
-        run: anaconda upload ${CONDA_PREFIX}/conda-bld/win-64/*.tar.bz2
+        run: anaconda upload build/win-64/*.tar.bz2
         env:
           ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
       - name: Upload to Anaconda (linux-64)
         if: ${{ (github.event_name == 'push' || inputs.should_publish) && runner.os == 'Linux' }}
-        run: anaconda upload ${CONDA_PREFIX}/conda-bld/linux-64/*.tar.bz2
+        run: anaconda upload build/conda-bld/linux-64/*.tar.bz2
         env:
           ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
       - name: Upload to Anaconda (osx-64)
         if: ${{ (github.event_name == 'push' || inputs.should_publish) && runner.os == 'macOS' }}
-        run: anaconda upload ${CONDA_PREFIX}/conda-bld/osx-64/*.tar.bz2
+        run: anaconda upload build/conda-bld/osx-64/*.tar.bz2
         env:
           ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
