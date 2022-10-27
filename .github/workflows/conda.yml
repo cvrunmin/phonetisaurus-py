@@ -62,11 +62,11 @@ jobs:
           ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
       - name: Upload to Anaconda (linux-64)
         if: ${{ (github.event_name == 'push' || inputs.should_publish) && runner.os == 'Linux' }}
-        run: anaconda upload build/conda-bld/linux-64/*.tar.bz2
+        run: anaconda upload build/linux-64/*.tar.bz2
         env:
           ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
       - name: Upload to Anaconda (osx-64)
         if: ${{ (github.event_name == 'push' || inputs.should_publish) && runner.os == 'macOS' }}
-        run: anaconda upload build/conda-bld/osx-64/*.tar.bz2
+        run: anaconda upload build/osx-64/*.tar.bz2
         env:
           ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
