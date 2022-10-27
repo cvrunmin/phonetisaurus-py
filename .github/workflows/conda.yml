@@ -1,6 +1,15 @@
 name: Conda
 
-on: workflow_dispatch
+on: 
+  workflow_dispatch:
+    inputs:
+      should_publish:
+        description: 'Should publish to Anaconda'
+        required: false
+        type: boolean
+  push:
+    tags:
+      - '*'
 
 jobs:
   build:
@@ -28,9 +37,20 @@ jobs:
 
       - name: Prepare
         run: conda install conda-build conda-verify
-
+        
+      - name: Enable auto upload
+        run: conda config --set anaconda_upload yes
+        if: github.event_name == "push" || input.should_publish
+        
       - name: Build
+        run: conda build conda -c conda-forge --no-anaconda-upload
+        if: github.event_name != "push" && !input.should_publish
+        
+      - name: Build and Upload
         run: conda build conda -c conda-forge
+        if: github.event_name == "push" || input.should_publish
+        env:
+          ANACONDA_API_TOKEN: ${{ secret.ANACONDA_TOKEN }}
 
       - name: Install
         run: conda install -c ${CONDA_PREFIX}/conda-bld/ phonetisaurus-py
@@ -38,4 +58,4 @@ jobs:
       - name: Find and export artifact
         uses: actions/upload-artifact@v3
         with:
-          path: ${CONDA_PREFIX}/conda-bld/*/phonetisaurus-py**.tar.bz2
+          path: ${{ env.CONDA_PREFIX }}/conda-bld/*/phonetisaurus-py**.tar.bz2
