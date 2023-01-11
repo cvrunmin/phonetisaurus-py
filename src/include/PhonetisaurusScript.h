@@ -41,6 +41,8 @@
 #include <sys/stat.h>
 #include <string>
 #include <vector>
+#include <tuple>
+#include <optional>
 /*! \struct PathData
     \brief Response data.
 
@@ -72,15 +74,22 @@ struct PathData {
 */
 class PhonetisaurusScript {
  private:
-  void normalizeModel() {
+  // cvrunmin: allow custom sets of veto set
+  void normalizeModel(std::vector<int> veto, int isym_tie = 1, int osym_tie=1) {
+    for (int i = 0; i < veto.size(); i++)
+    {
+      veto_set_.insert(veto[i]);
+    }
     ArcSort (&model_, ILabelCompare<StdArc> ());
     isyms_ = model_.InputSymbols ();
     osyms_ = model_.OutputSymbols ();
-    imax_  = LoadClusters (isyms_, &imap_, &invimap_);
-    omax_  = LoadClusters (osyms_, &omap_, &invomap_);
-    veto_set_.insert (0);
-    veto_set_.insert (1);
-    veto_set_.insert (2);
+    imax_  = LoadClusters (isyms_, &imap_, &invimap_, veto_set_, isym_tie);
+    omax_  = LoadClusters (osyms_, &omap_, &invomap_, veto_set_, osym_tie);
+
+  }
+  void normalizeModel(int isym_tie = 1, int osym_tie=1) {
+    std::vector<int> defaultSet = {0, 1, 2};
+    normalizeModel(defaultSet, isym_tie, osym_tie);
   }
  public:
   explicit PhonetisaurusScript (const VectorFst<StdArc> model, std::string delim="") : delim_(delim) {
@@ -88,7 +97,12 @@ class PhonetisaurusScript {
     normalizeModel();
   }
 
-  explicit PhonetisaurusScript(std::string model, std::string delim="") : delim_(delim) {
+  explicit PhonetisaurusScript(std::string model,
+      std::string delim="",
+      std::optional<std::vector<int>> vetoSet = std::nullopt,
+      int isym_tie = 1,
+      int osym_tie = 1
+    ) : delim_(delim) {
     struct stat buffer;
     if (!(stat (model.c_str(), &buffer) == 0))
       throw std::exception();
@@ -100,19 +114,25 @@ class PhonetisaurusScript {
     model_ = *model_temp;
     delete model_temp;
 
-    normalizeModel();
+    if(vetoSet){
+      normalizeModel(vetoSet.value(), isym_tie, osym_tie);
+    }
+    else{
+      normalizeModel(isym_tie, osym_tie);
+    }
   }
 
   // The actual phoneticizer routine
-  std::vector<PathData> Phoneticize (const std::string& word, int nbest = 1,
+  std::tuple<std::vector<PathData>, std::vector<std::string>> Phoneticize (const std::string& word, int nbest = 1,
                       int beam = 10000, float threshold = 99,
                       bool write_fsts = false,
                       bool accumulate = false,
                       double pmass = 99.0) {
     VectorFst<StdArc>* fst = new VectorFst<StdArc> ();
+    std::vector<std::string> unknownToken;
     std::vector<int> entry = tokenize2ints (
                           const_cast<std::string*> (&word),
-                          &delim_, isyms_
+                          &delim_, isyms_, unknownToken
                         );
     Entry2FSA (entry, fst, imax_, invimap_);
 
@@ -188,7 +208,7 @@ class PhonetisaurusScript {
     // Make sure that we clean up
     delete fst;
     delete ifst;
-    return paths;
+    return std::make_tuple(paths, unknownToken);
   }
 
   // Helper functions for the bindings
@@ -206,6 +226,10 @@ class PhonetisaurusScript {
 
   int FindOsym (const std::string& symbol) {
     return osyms_->Find (symbol);
+  }
+
+  bool IsFiltering(int id){
+    return veto_set_.find(id) != veto_set_.end();
   }
 
   const SymbolTable* isyms_;

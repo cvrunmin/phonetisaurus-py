@@ -90,18 +90,19 @@ std::vector<std::string> tokenize_utf8_string (std::string* utf8_string, std::st
   return string_vec;
 }
 
-
 std::vector<std::string> tokenize_entry (std::string* testword, std::string* sep, 
-			       SymbolTable* syms) {
+			       SymbolTable* syms, std::vector<std::string>& unknownToken) {
   std::vector<std::string> tokens = tokenize_utf8_string (testword, sep);
   std::vector<std::string> entry;
   for (unsigned int i=0; i<tokens.size (); i++) {
     if (syms->Find (tokens.at (i)) != -1) {
       entry.push_back (tokens.at (i));
     }else{
-      std::cerr << "Symbol: '" << tokens.at (i)
-           << "' not found in input symbols table." << std::endl
-           << "Mapping to null..." << std::endl;
+      // NOTE: save to list instead of outputting things into console
+      unknownToken.push_back(tokens.at(i));
+      // std::cerr << "Symbol: '" << tokens.at (i)
+      //      << "' not found in input symbols table." << std::endl
+      //      << "Mapping to null..." << std::endl;
     }
   }
 
@@ -109,15 +110,18 @@ std::vector<std::string> tokenize_entry (std::string* testword, std::string* sep
 }
 
 std::vector<int> tokenize2ints (std::string* testword, std::string* sep, 
-			   const SymbolTable* syms) {
+			   const SymbolTable* syms, std::vector<std::string>& unknownToken) {
   std::vector<std::string> tokens = tokenize_utf8_string (testword, sep);
   std::vector<int> entry;
   for (unsigned int i=0; i<tokens.size(); i++) {
     int label = syms->Find (tokens[i]);
-    if (label == -1)
-      std::cerr << "Symbol: '" << tokens[i]
-           << "' not found in input symbols table." << std::endl
-           << "Mapping to null..." << std::endl;
+    if (label == -1){
+      // NOTE: save to list instead of outputting things into console
+      unknownToken.push_back(tokens[i]);
+      // std::cerr << "Symbol: '" << tokens[i]
+      //      << "' not found in input symbols table." << std::endl
+      //      << "Mapping to null..." << std::endl;
+    }
     else
       entry.push_back (label);
   }

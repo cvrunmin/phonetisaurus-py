@@ -71,18 +71,19 @@ typedef std::unordered_map<std::vector<int>, int, VectorIntHash> SymbolMapM21;
 typedef std::unordered_set<int> VetoSet;
 
 int LoadClusters (const SymbolTable* syms, SymbolMap12M* clusters,
-                  SymbolMapM21* invclusters) {
+                  SymbolMapM21* invclusters, const VetoSet& veto_set, const int64_t tie_idx = 1) {
   /*
     Compute the set of 'clustered' graphemes learned during
     the alignment process. This information is encoded in
     the input symbols table.
   */
-  std::string tie = syms->Find (1);
+  std::string tie = syms->Find (tie_idx);
   size_t max_len = 1;
-  for (size_t i = 2; i < syms->NumSymbols(); i++) {
+  for (size_t i = 0; i < syms->NumSymbols(); i++) {
+    if (veto_set.find(i) != veto_set.end()) continue;
     std::string sym = syms->Find (i);
     std::vector<int> cluster;
-    if (sym.find(tie) != std::string::npos) {
+    if (tie_idx != -1 && sym.find(tie) != std::string::npos) {
       char* tmpstring = const_cast<char *> (sym.c_str());
       char* p = strtok (tmpstring, tie.c_str());
       while (p) {

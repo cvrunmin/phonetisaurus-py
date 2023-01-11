@@ -48,11 +48,11 @@ else:
         )
     ]
 
-__version__ = '0.3'
+__version__ = '0.3.1'
 
 setup (
     name         = 'phonetisaurus-py',
-    version      = '0.3',
+    version      = '0.3.1',
     description  = 'Pybind11 bound Phonetisaurus G2P python package',
     url          = 'http://github.com/cvrunmin/phonetisaurus-py',
     author       = 'Josef Novak',

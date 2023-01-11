@@ -50,9 +50,9 @@ std::string itoas (int i);
 std::vector<std::string> tokenize_utf8_string (std::string* utf8_string, std::string* delimiter);
 
 std::vector<std::string> tokenize_entry (std::string* testword, std::string* sep,
-                               SymbolTable* syms);
+                               SymbolTable* syms, std::vector<std::string>& unknownToken);
 
-std::vector<int> tokenize2ints (std::string* word, std::string* sep, const SymbolTable* syms);
+std::vector<int> tokenize2ints (std::string* word, std::string* sep, const SymbolTable* syms, std::vector<std::string>& unknownToken);
 
 timespec get_time( );
 
